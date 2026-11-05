@@ -1,0 +1,20 @@
+{
+  "signals_dir": "C:\\Users\\pc\\OneDrive - Université Mohammed VI Polytechnique\\Bureau\\Portfolio-optimization-main\\Portfolio-optimization-main\\experiments\\output\\signal_study_20261105_120327",
+  "best_signal_by_tstat": "c_momentum",
+  "tested_signals": [
+    "b_lstm_rel",
+    "c_momentum"
+  ],
+  "ic_tstat": {
+    "a_lstm_brut": -1.2728785315400193,
+    "b_lstm_rel": -1.6570950205533657,
+    "c_momentum": 1.0717588457649414,
+    "d_ridge_rel": -0.2788136101707613
+  },
+  "tilt_k": 0.5,
+  "max_weight": 0.1,
+  "holding_start": "2022-02-02",
+  "holding_end": "2023-09-01",
+  "n_trading_days": 398,
+  "retry_missing": false
+}

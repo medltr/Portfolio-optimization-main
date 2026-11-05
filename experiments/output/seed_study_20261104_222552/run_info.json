@@ -1,0 +1,32 @@
+{
+  "determinism": {
+    "predictions_identical": true,
+    "max_abs_diff_predictions": 0.0,
+    "history_identical": true,
+    "epochs_run_1": 9,
+    "epochs_run_2": 9
+  },
+  "tensorflow": "2.21.0",
+  "seeds": [
+    0,
+    1,
+    2,
+    3,
+    4
+  ],
+  "test_signal_dates": [
+    "2023-02-28",
+    "2023-03-31",
+    "2023-04-30",
+    "2023-05-31",
+    "2023-06-30",
+    "2023-07-31"
+  ],
+  "holding_start": "2023-03-02",
+  "holding_end": "2023-09-01",
+  "n_trading_days": 128,
+  "max_weight": 0.1,
+  "alloc_winners": 0.5,
+  "alloc_stables": 0.5,
+  "retry_missing": false
+}

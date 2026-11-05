@@ -1,0 +1,162 @@
+{
+  "tensorflow": "2.21.0",
+  "first_test": "2022-01-31",
+  "block_months": 6,
+  "seeds": [
+    0,
+    1,
+    2,
+    3,
+    4
+  ],
+  "val_frac": 0.2,
+  "min_val_months": 4,
+  "lstm_hyperparameters": {
+    "SEQ_LEN": 12,
+    "LSTM_EPOCHS": 30,
+    "BATCH_SIZE": 256,
+    "LR": 0.001
+  },
+  "max_weight": 0.1,
+  "alloc_winners": 0.5,
+  "alloc_stables": 0.5,
+  "holding_start": "2022-02-02",
+  "holding_end": "2023-09-01",
+  "n_trading_days": 398,
+  "n_test_months": 19,
+  "schedule": [
+    {
+      "T": "2022-01-31",
+      "n_train": 582,
+      "n_val": 203,
+      "train_months": [
+        "2020-01-31",
+        "2021-05-31"
+      ],
+      "val_months": [
+        "2021-07-31",
+        "2021-11-30"
+      ],
+      "n_train_months": 17,
+      "n_val_months": 5,
+      "last_train_target": "2021-07-01",
+      "last_val_target": "2022-01-03",
+      "block": 1,
+      "test_months": [
+        "2022-01-31",
+        "2022-06-30"
+      ],
+      "n_test": 222,
+      "epochs": {
+        "0": 10,
+        "1": 14,
+        "2": 13,
+        "3": 9,
+        "4": 7
+      }
+    },
+    {
+      "T": "2022-07-31",
+      "n_train": 780,
+      "n_val": 241,
+      "train_months": [
+        "2020-01-31",
+        "2021-10-31"
+      ],
+      "val_months": [
+        "2021-12-31",
+        "2022-05-31"
+      ],
+      "n_train_months": 22,
+      "n_val_months": 6,
+      "last_train_target": "2021-12-01",
+      "last_val_target": "2022-07-01",
+      "block": 2,
+      "test_months": [
+        "2022-07-31",
+        "2022-12-31"
+      ],
+      "n_test": 255,
+      "epochs": {
+        "0": 6,
+        "1": 10,
+        "2": 10,
+        "3": 6,
+        "4": 14
+      }
+    },
+    {
+      "T": "2023-01-31",
+      "n_train": 990,
+      "n_val": 276,
+      "train_months": [
+        "2020-01-31",
+        "2022-03-31"
+      ],
+      "val_months": [
+        "2022-05-31",
+        "2022-11-30"
+      ],
+      "n_train_months": 27,
+      "n_val_months": 7,
+      "last_train_target": "2022-05-02",
+      "last_val_target": "2023-01-03",
+      "block": 3,
+      "test_months": [
+        "2023-01-31",
+        "2023-06-30"
+      ],
+      "n_test": 249,
+      "epochs": {
+        "0": 10,
+        "1": 9,
+        "2": 6,
+        "3": 15,
+        "4": 12
+      }
+    },
+    {
+      "T": "2023-07-31",
+      "n_train": 1174,
+      "n_val": 352,
+      "train_months": [
+        "2020-01-31",
+        "2022-08-31"
+      ],
+      "val_months": [
+        "2022-10-31",
+        "2023-05-31"
+      ],
+      "n_train_months": 32,
+      "n_val_months": 8,
+      "last_train_target": "2022-10-03",
+      "last_val_target": "2023-07-03",
+      "block": 4,
+      "test_months": [
+        "2023-07-31",
+        "2023-07-31"
+      ],
+      "n_test": 35,
+      "epochs": {
+        "0": 7,
+        "1": 7,
+        "2": 8,
+        "3": 8,
+        "4": 8
+      }
+    }
+  ],
+  "prediction_dispersion": {
+    "mean_seed_dispersion": 0.041452109813690186,
+    "std_ensemble_predictions": 0.04114494100213051,
+    "mean_std_single_seed_predictions": 0.05450507253408432,
+    "ic_mean_by_seed": {
+      "pred_seed0": -0.09642350667547354,
+      "pred_seed1": -0.043073878904459885,
+      "pred_seed2": -0.02918618252177249,
+      "pred_seed3": -0.12115823275704347,
+      "pred_seed4": -0.0752988817904584
+    }
+  },
+  "retry_missing": false
+}

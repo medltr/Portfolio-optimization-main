@@ -1,0 +1,18 @@
+{
+  "signals_source": "C:\\Users\\pc\\OneDrive - Université Mohammed VI Polytechnique\\Bureau\\Portfolio-optimization-main\\Portfolio-optimization-main\\experiments\\output\\signal_study_20261105_120327",
+  "best_signal_selection": "momentum",
+  "best_signal_tstat_selection": 1.2843151601559397,
+  "best_signal_ic_confirmation": -0.015267149484969659,
+  "best_signal_confirmed": false,
+  "c_star": "Tilt_50_50",
+  "c_star_sharpe_selection": -0.23983735175583248,
+  "c_star_sharpe_confirmation": 0.0878883012978525,
+  "ew50_sharpe_confirmation": 0.07994665572290297,
+  "c_star_beats_ew50_on_confirmation": true,
+  "c_star_confirmed": false,
+  "default_for_phase_B": {
+    "construction": "equal_weight",
+    "group_rule": "50_50",
+    "signal": null
+  }
+}

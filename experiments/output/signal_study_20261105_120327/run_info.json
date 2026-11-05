@@ -1,0 +1,192 @@
+{
+  "tensorflow": "2.21.0",
+  "first_test": "2022-01-31",
+  "block_months": 6,
+  "seeds": [
+    0,
+    1,
+    2,
+    3,
+    4
+  ],
+  "lstm_hyperparameters": {
+    "SEQ_LEN": 12,
+    "LSTM_EPOCHS": 30,
+    "BATCH_SIZE": 256,
+    "LR": 0.001
+  },
+  "ridge_alphas_grid": [
+    0.01,
+    0.1,
+    1.0,
+    10.0,
+    100.0,
+    1000.0,
+    10000.0
+  ],
+  "schedule": [
+    {
+      "T": "2022-01-31",
+      "n_train": 582,
+      "n_val": 203,
+      "train_months": [
+        "2020-01-31",
+        "2021-05-31"
+      ],
+      "val_months": [
+        "2021-07-31",
+        "2021-11-30"
+      ],
+      "n_train_months": 17,
+      "n_val_months": 5,
+      "last_train_target": "2021-07-01",
+      "last_val_target": "2022-01-03",
+      "block": 1,
+      "ridge_alpha": 10000.0,
+      "ridge_val_mse": {
+        "0.01": 0.01484857012057486,
+        "0.1": 0.01380774856169955,
+        "1.0": 0.011369954438734158,
+        "10.0": 0.008322443520875156,
+        "100.0": 0.0060394281153069345,
+        "1000.0": 0.005114860001427574,
+        "10000.0": 0.004638852590937809
+      }
+    },
+    {
+      "T": "2022-07-31",
+      "n_train": 780,
+      "n_val": 241,
+      "train_months": [
+        "2020-01-31",
+        "2021-10-31"
+      ],
+      "val_months": [
+        "2021-12-31",
+        "2022-05-31"
+      ],
+      "n_train_months": 22,
+      "n_val_months": 6,
+      "last_train_target": "2021-12-01",
+      "last_val_target": "2022-07-01",
+      "block": 2,
+      "ridge_alpha": 10000.0,
+      "ridge_val_mse": {
+        "0.01": 0.0095156989656345,
+        "0.1": 0.008796301940695339,
+        "1.0": 0.007838764986834813,
+        "10.0": 0.007077299516795973,
+        "100.0": 0.006653509003319703,
+        "1000.0": 0.00651392590299071,
+        "10000.0": 0.00627177691954834
+      }
+    },
+    {
+      "T": "2023-01-31",
+      "n_train": 990,
+      "n_val": 276,
+      "train_months": [
+        "2020-01-31",
+        "2022-03-31"
+      ],
+      "val_months": [
+        "2022-05-31",
+        "2022-11-30"
+      ],
+      "n_train_months": 27,
+      "n_val_months": 7,
+      "last_train_target": "2022-05-02",
+      "last_val_target": "2023-01-03",
+      "block": 3,
+      "ridge_alpha": 10000.0,
+      "ridge_val_mse": {
+        "0.01": 0.010377830227756946,
+        "0.1": 0.010061631046131718,
+        "1.0": 0.009199711407550683,
+        "10.0": 0.007623962275533903,
+        "100.0": 0.006706460566934283,
+        "1000.0": 0.006103475765623741,
+        "10000.0": 0.005702066282007717
+      }
+    },
+    {
+      "T": "2023-07-31",
+      "n_train": 1174,
+      "n_val": 352,
+      "train_months": [
+        "2020-01-31",
+        "2022-08-31"
+      ],
+      "val_months": [
+        "2022-10-31",
+        "2023-05-31"
+      ],
+      "n_train_months": 32,
+      "n_val_months": 8,
+      "last_train_target": "2022-10-03",
+      "last_val_target": "2023-07-03",
+      "block": 4,
+      "ridge_alpha": 10000.0,
+      "ridge_val_mse": {
+        "0.01": 0.008334041987680833,
+        "0.1": 0.008003046161541134,
+        "1.0": 0.0073817072469013366,
+        "10.0": 0.006243181008796039,
+        "100.0": 0.005528031617387696,
+        "1000.0": 0.005136391423849743,
+        "10000.0": 0.0049632565274055004
+      }
+    }
+  ],
+  "epochs": {
+    "a_lstm_brut_seed0": 7,
+    "a_lstm_brut_seed1": 7,
+    "a_lstm_brut_seed2": 8,
+    "a_lstm_brut_seed3": 8,
+    "a_lstm_brut_seed4": 8,
+    "b_lstm_rel_seed0": 7,
+    "b_lstm_rel_seed1": 20,
+    "b_lstm_rel_seed2": 8,
+    "b_lstm_rel_seed3": 8,
+    "b_lstm_rel_seed4": 11
+  },
+  "reproducibility_a": {
+    "walk_forward_file": "C:\\Users\\pc\\OneDrive - Université Mohammed VI Polytechnique\\Bureau\\Portfolio-optimization-main\\Portfolio-optimization-main\\experiments\\output\\walk_forward_20261104_230330\\predictions.csv",
+    "n_common": 761,
+    "n_signal_rows": 761,
+    "max_abs_diff": 4.824714655571327e-09,
+    "identical": false
+  },
+  "best_signal_by_tstat": "c_momentum",
+  "stocks_per_month": {
+    "min": 27,
+    "max": 50,
+    "mean": 40.05263157894737
+  },
+  "signal_correlations_spearman": {
+    "a_lstm_brut": {
+      "a_lstm_brut": 1.0,
+      "b_lstm_rel": 0.6629,
+      "c_momentum": -0.4122,
+      "d_ridge_rel": 0.2735
+    },
+    "b_lstm_rel": {
+      "a_lstm_brut": 0.6629,
+      "b_lstm_rel": 1.0,
+      "c_momentum": -0.3255,
+      "d_ridge_rel": 0.2245
+    },
+    "c_momentum": {
+      "a_lstm_brut": -0.4122,
+      "b_lstm_rel": -0.3255,
+      "c_momentum": 1.0,
+      "d_ridge_rel": -0.3299
+    },
+    "d_ridge_rel": {
+      "a_lstm_brut": 0.2735,
+      "b_lstm_rel": 0.2245,
+      "c_momentum": -0.3299,
+      "d_ridge_rel": 1.0
+    }
+  }
+}
