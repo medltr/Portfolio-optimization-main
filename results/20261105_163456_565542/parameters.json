@@ -1,0 +1,404 @@
+{
+  "status": "complete",
+  "n_sequences": 1670,
+  "sequence_shape": [
+    12,
+    18
+  ],
+  "split": {
+    "train_dates": [
+      "2020-01-31",
+      "2020-02-29",
+      "2020-03-31",
+      "2020-04-30",
+      "2020-05-31",
+      "2020-06-30",
+      "2020-07-31",
+      "2020-08-31",
+      "2020-09-30",
+      "2020-10-31",
+      "2020-11-30",
+      "2020-12-31",
+      "2021-01-31",
+      "2021-02-28",
+      "2021-03-31",
+      "2021-04-30",
+      "2021-05-31",
+      "2021-06-30",
+      "2021-07-31",
+      "2021-08-31",
+      "2021-09-30",
+      "2021-10-31",
+      "2021-11-30",
+      "2021-12-31",
+      "2022-01-31",
+      "2022-02-28",
+      "2022-03-31",
+      "2022-04-30",
+      "2022-05-31",
+      "2022-06-30"
+    ],
+    "validation_dates": [
+      "2022-07-31",
+      "2022-08-31",
+      "2022-09-30",
+      "2022-10-31",
+      "2022-11-30",
+      "2022-12-31",
+      "2023-01-31"
+    ],
+    "test_dates": [
+      "2023-02-28",
+      "2023-03-31",
+      "2023-04-30",
+      "2023-05-31",
+      "2023-06-30",
+      "2023-07-31",
+      "2023-08-31"
+    ],
+    "n_train": 1069,
+    "n_validation": 255,
+    "n_test": 287,
+    "removed_train": 27,
+    "removed_validation": 32,
+    "last_train_target": "2022-07-01",
+    "last_validation_target": "2023-02-01"
+  },
+  "features": [
+    "GK",
+    "rsi",
+    "atr_pct",
+    "return_1m",
+    "return_2m",
+    "return_3m",
+    "return_6m",
+    "return_9m",
+    "return_12m",
+    "Mkt-RF",
+    "SMB",
+    "HML",
+    "RMW",
+    "CMA",
+    "TrendScore",
+    "RiskScore",
+    "QualityScore",
+    "StressScore"
+  ],
+  "symbols_requested": 503,
+  "symbols_with_prices": 492,
+  "symbols_without_prices": [
+    "FDXF",
+    "GEV",
+    "HONA",
+    "KVUE",
+    "Q",
+    "RDDT",
+    "SJM",
+    "SNDK",
+    "SOLV",
+    "VLTO",
+    "VYLR"
+  ],
+  "data_cutoff": "2023-09-26",
+  "last_complete_feature_month": "2023-08-31",
+  "eval_mode": "walk_forward",
+  "parameters": {
+    "start_date": "2015-09-27",
+    "end_date": "2023-09-27",
+    "N_CLUSTERS": 4,
+    "TOP_FRAC": 0.5,
+    "MIN_NAMES": 10,
+    "MAX_NAMES": 60,
+    "LOOKBACK_MONTHS_DAILY": 12,
+    "MAX_WEIGHT": 0.1,
+    "SEQ_LEN": 12,
+    "LSTM_EPOCHS": 30,
+    "BATCH_SIZE": 256,
+    "LR": 0.001,
+    "BETA_WINDOW": 24,
+    "FACTOR_LAG_MONTHS": 2,
+    "EVAL_MODE": "walk_forward",
+    "WF_FIRST_TEST": "2022-01-31",
+    "WF_BLOCK_MONTHS": 6,
+    "WF_VAL_FRAC": 0.2,
+    "WF_MIN_VAL_MONTHS": 4,
+    "SELECTION_END": "2022-12-31",
+    "SEEDS": [
+      0,
+      1,
+      2,
+      3,
+      4
+    ],
+    "DETERMINISTIC": true,
+    "SIGNAL": "momentum",
+    "CONSTRUCTION": "equal_weight",
+    "GROUP_RULE": "50_50",
+    "TILT_STRENGTH": 0.5,
+    "IC_SIGNALS": [
+      "lstm_raw",
+      "lstm_relative",
+      "momentum",
+      "low_vol",
+      "mom_lowvol",
+      "reversal_1m",
+      "low_beta",
+      "quality"
+    ],
+    "COMPARISONS": [
+      [
+        "lstm_raw",
+        "max_sharpe",
+        "50_50"
+      ],
+      [
+        "lstm_relative",
+        "tilt",
+        "50_50"
+      ],
+      [
+        "momentum",
+        "max_sharpe",
+        "50_50"
+      ],
+      [
+        "momentum",
+        "tilt",
+        "50_50"
+      ]
+    ]
+  },
+  "main": "equal_weight_50_50",
+  "strategies": [
+    {
+      "key": "equal_weight_50_50",
+      "label": "Équipondéré · 50/50",
+      "signal": null,
+      "construction": "equal_weight",
+      "rule": "50_50",
+      "kind": "main"
+    },
+    {
+      "key": "lstm_raw_max_sharpe_50_50",
+      "label": "LSTM brut · Max Sharpe · 50/50",
+      "signal": "lstm_raw",
+      "construction": "max_sharpe",
+      "rule": "50_50",
+      "kind": "comparison"
+    },
+    {
+      "key": "lstm_relative_tilt_50_50",
+      "label": "LSTM relatif · Inclinaison · 50/50",
+      "signal": "lstm_relative",
+      "construction": "tilt",
+      "rule": "50_50",
+      "kind": "comparison"
+    },
+    {
+      "key": "momentum_max_sharpe_50_50",
+      "label": "Momentum 12-1 · Max Sharpe · 50/50",
+      "signal": "momentum",
+      "construction": "max_sharpe",
+      "rule": "50_50",
+      "kind": "comparison"
+    },
+    {
+      "key": "momentum_tilt_50_50",
+      "label": "Momentum 12-1 · Inclinaison · 50/50",
+      "signal": "momentum",
+      "construction": "tilt",
+      "rule": "50_50",
+      "kind": "comparison"
+    },
+    {
+      "key": "equal_weight_none",
+      "label": "Équipondéré · sans contrainte de groupe",
+      "signal": null,
+      "construction": "equal_weight",
+      "rule": "none",
+      "kind": "reference"
+    },
+    {
+      "key": "min_variance_50_50",
+      "label": "Minimum de variance · 50/50",
+      "signal": null,
+      "construction": "min_variance",
+      "rule": "50_50",
+      "kind": "reference"
+    },
+    {
+      "key": "SPY",
+      "label": "SPY",
+      "signal": null,
+      "construction": null,
+      "rule": null,
+      "kind": "reference"
+    }
+  ],
+  "schedule": [
+    {
+      "block": 1,
+      "test_months": [
+        "2022-01-31",
+        "2022-06-30"
+      ],
+      "n_test": 222,
+      "T": "2022-01-31",
+      "n_train": 582,
+      "n_val": 203,
+      "train_months": [
+        "2020-01-31",
+        "2021-05-31"
+      ],
+      "val_months": [
+        "2021-07-31",
+        "2021-11-30"
+      ],
+      "last_train_target": "2021-07-01",
+      "last_val_target": "2022-01-03",
+      "epochs_lstm_raw": {
+        "0": 10,
+        "1": 14,
+        "2": 13,
+        "3": 9,
+        "4": 7
+      },
+      "epochs_lstm_relative": {
+        "0": 21,
+        "1": 13,
+        "2": 20,
+        "3": 15,
+        "4": 7
+      }
+    },
+    {
+      "block": 2,
+      "test_months": [
+        "2022-07-31",
+        "2022-12-31"
+      ],
+      "n_test": 255,
+      "T": "2022-07-31",
+      "n_train": 780,
+      "n_val": 241,
+      "train_months": [
+        "2020-01-31",
+        "2021-10-31"
+      ],
+      "val_months": [
+        "2021-12-31",
+        "2022-05-31"
+      ],
+      "last_train_target": "2021-12-01",
+      "last_val_target": "2022-07-01",
+      "epochs_lstm_raw": {
+        "0": 6,
+        "1": 10,
+        "2": 10,
+        "3": 6,
+        "4": 14
+      },
+      "epochs_lstm_relative": {
+        "0": 14,
+        "1": 9,
+        "2": 13,
+        "3": 19,
+        "4": 13
+      }
+    },
+    {
+      "block": 3,
+      "test_months": [
+        "2023-01-31",
+        "2023-06-30"
+      ],
+      "n_test": 249,
+      "T": "2023-01-31",
+      "n_train": 990,
+      "n_val": 276,
+      "train_months": [
+        "2020-01-31",
+        "2022-03-31"
+      ],
+      "val_months": [
+        "2022-05-31",
+        "2022-11-30"
+      ],
+      "last_train_target": "2022-05-02",
+      "last_val_target": "2023-01-03",
+      "epochs_lstm_raw": {
+        "0": 10,
+        "1": 9,
+        "2": 6,
+        "3": 15,
+        "4": 12
+      },
+      "epochs_lstm_relative": {
+        "0": 10,
+        "1": 14,
+        "2": 12,
+        "3": 14,
+        "4": 13
+      }
+    },
+    {
+      "block": 4,
+      "test_months": [
+        "2023-07-31",
+        "2023-07-31"
+      ],
+      "n_test": 35,
+      "T": "2023-07-31",
+      "n_train": 1174,
+      "n_val": 352,
+      "train_months": [
+        "2020-01-31",
+        "2022-08-31"
+      ],
+      "val_months": [
+        "2022-10-31",
+        "2023-05-31"
+      ],
+      "last_train_target": "2022-10-03",
+      "last_val_target": "2023-07-03",
+      "epochs_lstm_raw": {
+        "0": 7,
+        "1": 7,
+        "2": 8,
+        "3": 8,
+        "4": 8
+      },
+      "epochs_lstm_relative": {
+        "0": 7,
+        "1": 20,
+        "2": 8,
+        "3": 8,
+        "4": 11
+      }
+    }
+  ],
+  "tensorflow": "2.21.0",
+  "test_dates": [
+    "2022-01-31",
+    "2022-02-28",
+    "2022-03-31",
+    "2022-04-30",
+    "2022-05-31",
+    "2022-06-30",
+    "2022-07-31",
+    "2022-08-31",
+    "2022-09-30",
+    "2022-10-31",
+    "2022-11-30",
+    "2022-12-31",
+    "2023-01-31",
+    "2023-02-28",
+    "2023-03-31",
+    "2023-04-30",
+    "2023-05-31",
+    "2023-06-30",
+    "2023-07-31"
+  ],
+  "holding_start": "2022-02-02",
+  "holding_end": "2023-09-01"
+}

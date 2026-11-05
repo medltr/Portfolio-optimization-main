@@ -1,0 +1,40 @@
+# Thème du tableau de bord (clair et sombre). Choix du thème : menu ⋮ > Settings.
+[client]
+toolbarMode = "minimal"
+showSidebarNavigation = false
+
+[browser]
+gatherUsageStats = false
+
+[theme]
+font = "Inter:https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap"
+headingFont = "Inter:https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap"
+baseFontSize = 14
+baseRadius = "4px"
+showWidgetBorder = true
+headingFontWeights = [600, 600, 600, 600, 600, 600]
+headingFontSizes = ["1.5rem", "1.25rem", "1.05rem", "0.95rem", "0.9rem", "0.85rem"]
+
+[theme.light]
+primaryColor = "#3B6FD4"
+backgroundColor = "#FFFFFF"
+secondaryBackgroundColor = "#F3F5F8"
+textColor = "#1F2937"
+borderColor = "#DDE2E9"
+linkColor = "#3B6FD4"
+
+[theme.light.sidebar]
+backgroundColor = "#F3F5F8"
+secondaryBackgroundColor = "#FFFFFF"
+
+[theme.dark]
+primaryColor = "#6C9BF0"
+backgroundColor = "#0F141A"
+secondaryBackgroundColor = "#18202A"
+textColor = "#E5E9F0"
+borderColor = "#2A3441"
+linkColor = "#6C9BF0"
+
+[theme.dark.sidebar]
+backgroundColor = "#131A22"
+secondaryBackgroundColor = "#1C2530"

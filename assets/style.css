@@ -1,0 +1,74 @@
+/* Feuille de style du tableau de bord : sobre, compacte, lisible en thème clair et sombre.
+   Les couleurs de fond et de texte viennent de .streamlit/config.toml ; ici, uniquement
+   des transparences neutres pour rester valables dans les deux thèmes. */
+
+:root {
+  --pf-accent: #3B6FD4;
+  --pf-line: rgba(128, 140, 155, 0.28);
+  --pf-muted: rgba(128, 140, 155, 1);
+}
+
+html, body, .stApp, button, input, textarea, select {
+  font-family: "Inter", "IBM Plex Sans", "Segoe UI", system-ui, -apple-system, sans-serif;
+  font-feature-settings: "tnum" 1;            /* chiffres à chasse fixe : colonnes alignées */
+}
+
+/* Mise en page */
+.block-container { padding-top: 0.75rem; padding-bottom: 2.5rem; max-width: 1680px; }
+header[data-testid="stHeader"] { height: 2.25rem; background: transparent; }
+[data-testid="stHeaderActionElements"] { display: none; }   /* ancres des titres */
+div[data-testid="stVerticalBlock"] { gap: 0.75rem; }
+div[data-testid="stHorizontalBlock"] { gap: 0.9rem; }
+
+/* En-tête */
+.pf-header {
+  display: flex; align-items: baseline; justify-content: space-between; flex-wrap: wrap;
+  gap: 0.25rem 1.5rem; padding: 0.2rem 0 0.55rem; border-bottom: 1px solid var(--pf-line);
+}
+.pf-title { font-size: 1.05rem; font-weight: 600; letter-spacing: 0.01em; }
+.pf-meta { font-size: 0.78rem; color: var(--pf-muted); }
+
+/* Navigation des pages : onglets soulignés */
+.st-key-nav div[role="radiogroup"] {
+  gap: 0; flex-wrap: wrap; border-bottom: 1px solid var(--pf-line);
+}
+.st-key-nav div[role="radiogroup"] > label {
+  margin: 0; padding: 0.5rem 0.95rem 0.45rem; border-bottom: 2px solid transparent;
+  cursor: pointer; border-radius: 0;
+}
+.st-key-nav div[role="radiogroup"] > label > div:first-child { display: none; }
+.st-key-nav div[role="radiogroup"] > label p { font-size: 0.86rem; color: var(--pf-muted); }
+.st-key-nav div[role="radiogroup"] > label:has(input:checked) { border-bottom-color: var(--pf-accent); }
+.st-key-nav div[role="radiogroup"] > label:has(input:checked) p { color: inherit; font-weight: 600; }
+
+/* Titres de section */
+h5 { font-size: 0.88rem !important; font-weight: 600 !important; margin: 0.6rem 0 0.1rem !important;
+     padding: 0 !important; letter-spacing: 0.01em; }
+h3 { font-size: 1.1rem !important; font-weight: 600 !important; padding: 0.25rem 0 0 !important; }
+
+/* Cartes KPI compactes */
+div[data-testid="stMetric"] { padding: 0.6rem 0.85rem 0.55rem; border-radius: 4px; }
+div[data-testid="stMetricLabel"] p { font-size: 0.74rem; font-weight: 500; color: var(--pf-muted); }
+div[data-testid="stMetricValue"] { font-size: 1.32rem; font-weight: 600; line-height: 1.25; }
+div[data-testid="stMetricDelta"] { font-size: 0.74rem; }
+div[data-testid="stMetricDelta"] svg { width: 0.85rem; height: 0.85rem; }
+
+/* Textes secondaires */
+div[data-testid="stCaptionContainer"], .stCaption { font-size: 0.76rem; color: var(--pf-muted); }
+.pf-note {
+  font-size: 0.78rem; color: var(--pf-muted); border-left: 2px solid var(--pf-line);
+  padding: 0.1rem 0 0.1rem 0.6rem; margin: 0.1rem 0 0.2rem;
+}
+
+/* Barre latérale */
+section[data-testid="stSidebar"] .block-container { padding-top: 1rem; }
+section[data-testid="stSidebar"] h4 { font-size: 0.8rem !important; text-transform: uppercase;
+  letter-spacing: 0.06em; color: var(--pf-muted); font-weight: 600 !important; }
+
+section[data-testid="stSidebar"] span[data-baseweb="tag"] { font-size: 0.74rem; height: 1.5rem; margin: 2px 4px 2px 0; }
+section[data-testid="stSidebar"] div[data-baseweb="select"] > div { max-height: none; }
+
+/* Tableaux, boutons, sections repliables */
+div[data-testid="stDataFrame"] { font-size: 0.82rem; }
+div[data-testid="stDownloadButton"] button { padding: 0.15rem 0.6rem; min-height: 1.9rem; font-size: 0.78rem; }
+details summary p { font-size: 0.84rem; }

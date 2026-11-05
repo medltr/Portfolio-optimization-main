@@ -184,3 +184,66 @@ Elles sont écrites avant tout calcul et ne seront pas modifiées au vu des rés
 ---
 
 # Phase B : intégration dans le projet principal
+
+## B1 : sauvegarde
+
+Un dépôt Git a été créé dans le dossier du projet, avec un commit `d826717` (« Sauvegarde avant intégration ») de l'état complet avant toute modification : code, `experiments/` et résultats existants. Le cache de données (`.cache/`) est exclu par le `.gitignore` existant. Pour revenir à cet état : `git checkout d826717 -- .`
+
+## B2 : intégration dans le projet
+
+- `config.py` : nouvelles options `EVAL_MODE`, `LEGACY_MODE`, `WF_*`, `SELECTION_END`, `SEEDS`, `DETERMINISTIC`, `SIGNAL`, `CONSTRUCTION`, `GROUP_RULE`, `TILT_STRENGTH`, `IC_SIGNALS`, `COMPARISONS` et `RETRY_MISSING_PRICES`. Par défaut, selon la règle de la phase A : **équipondéré 50/50** en walk-forward.
+- `strategy.py` : signaux sans apprentissage (momentum, retournement, faible volatilité, faible bêta, qualité, momentum + faible volatilité) et règles de répartition (`group_totals`, `group_bounds`).
+- `lstm.py` : graine passée en paramètre (`build_lstm`, `train_lstm`, valeur par défaut inchangée), `enable_determinism`, `add_relative_target`, `walk_forward_blocks`, `split_at` (qui lève une erreur si une fuite est détectée) et `predict_ensemble`.
+- `backtest.py` : `rule_weights` (équipondéré / inclinaison), `optimize_weights` (max Sharpe / minimum de variance sous chaque règle), `run_backtest` (générique), `ic_by_month`, `ic_stats` et `label_days`. Les anciennes fonctions sont inchangées.
+- `pipeline.py` : l'ancien déroulé devient `run_single_split()` (même code, avec le déterminisme en plus), le nouveau `run_walk_forward()` est ajouté, ainsi que les options en ligne de commande `--legacy` et `--mode`.
+
+## B3 : tableau de bord
+
+`app.py` : choix du dossier de résultats dans la barre latérale, nouveaux onglets walk-forward (« Comparaison », « Par période », « Signal (IC) », « Méthodologie »). L'allocation et le clustering sont réutilisés. Les anciens résultats (découpage unique) restent affichés avec les onglets d'origine.
+
+## B4 : tests automatiques
+
+`tests/test_portfolio.py` (unittest, 11 tests). Ils vérifient :
+- que les poids somment à 100 % ;
+- que le plafond de 10 % est respecté ;
+- que chaque règle de répartition est respectée (équipondéré, inclinaison, max Sharpe, minimum de variance) ;
+- que le portefeuille passe en liquidités si une règle est irréalisable ;
+- que le max Sharpe 50/50 est identique à l'ancienne fonction ;
+- qu'il n'y a pas de fuite dans le calendrier walk-forward ;
+- que la cible relative est bien centrée chaque mois ;
+- que la faible volatilité n'utilise que le passé ;
+- et, sur les derniers résultats réels, que toutes les stratégies respectent leurs règles et que le calendrier ne contient pas de fuite.
+
+Premier lancement : 9 réussis, 2 ignorés (aucun résultat walk-forward n'existait encore).
+
+**Mise à jour B4, après le lancement complet.** Avec les résultats réels, le test sur les règles a d'abord échoué pour 9 mois de portefeuilles optimisés. Cause : l'imprécision du solveur SCS combinée à l'étape d'origine « clip puis renormalisation ». Écarts maximaux : plafond dépassé de 1,4e-5 (10,0014 %), part d'un groupe à 49,987 %. Ce comportement existait déjà dans le projet d'origine (10,00013 % au run du 4 novembre). L'optimiseur n'a pas été modifié, pour garder la reproduction exacte. Le test vérifie désormais les portefeuilles optimisés avec une tolérance explicite (2e-5 sur le plafond, 5e-4 sur les parts) et reste strict (1e-6) pour l'équipondéré et l'inclinaison. Résultat : 11 tests réussis sur 11.
+
+## B5 : lancement complet, tableau de bord, documentation
+
+- `python pipeline.py --legacy` → `results/20261105_162257_293790` (environ 2 min) : indicateurs identiques au run du 4 novembre (écart 0).
+- `python pipeline.py` → `results/20261105_163456_565542` (environ 12 min, 40 LSTM). Rendements identiques jour par jour à ceux des études de `experiments/` (écart 0, ou 2e-14). Aucun repli d'optimisation ; inclinaisons plafonnées 3 mois.
+- Tableau de bord : les 5 dossiers de résultats se chargent sans erreur (exécution automatique de `app.py`). Le serveur Streamlit répond « ok » au contrôle de santé, la page renvoie HTTP 200, puis le serveur a été arrêté.
+- `README.md` est mis à jour et `experiments/RAPPORT_INTEGRATION.md` est écrit.
+- Les modifications de la phase B ne sont pas encore commitées dans Git (la sauvegarde `d826717` reste le point de retour).
+
+# Refonte du tableau de bord (`app.py`)
+
+- **Ce qui a été fait :** `app.py` a été réécrit en tableau de bord de style Power BI, en français, en lecture seule.
+  - Barre latérale de filtres : dossier, stratégies, période (toute la période, 2022, 2023, plage de dates), montant investi.
+  - 7 pages : Vue d'ensemble, Simulateur, Comparaison, Par période, Portefeuille, Modèle et signal, Méthode et conclusions.
+  - Cartes KPI comparées à SPY, une couleur fixe par stratégie, des noms simples (« Répartition égale », « Prudent », « Intelligence artificielle », « Suivre la tendance »), une aide « ? » sur chaque indicateur et graphique, export CSV.
+  - Thème clair ou sombre de Streamlit, que les graphiques suivent.
+  - La logique de calcul du projet n'est pas modifiée ; seule `perf_metrics` est réutilisée. Les 11 tests du projet passent toujours.
+- **Vérification :** 215 exécutions automatiques de l'application (5 dossiers × chaque période × 7 pages, chaque stratégie de la page Portefeuille au premier et au dernier mois, chaque signal, chaque stratégie du simulateur), **0 erreur**. Les cartes KPI ont été contrôlées contre les résultats du pipeline (identiques). Le vrai serveur démarre (contrôle de santé « ok », HTTP 200), puis a été arrêté.
+- **Pour l'outil de test :** les fonctions d'affichage des listes déroulantes renvoient tel quel un libellé déjà formaté. C'est sans effet pour l'utilisateur.
+
+# Tableau de bord : correction et style professionnel
+
+- **Bug du graphique des rangs (page « Par période ») :** les étiquettes « 2022 » et « 2023 » étaient interprétées comme des nombres. L'axe était donc numérique, et la plage forcée (−0,3 à 1,9) affichait une zone vide. Correction : positions fixes 0 et 1 étiquetées par l'année, une ligne par stratégie, noms à gauche (2022) et à droite (2023) sans coupure, rangs départagés en cas d'égalité. Vérifié par une image du graphique seul (clair et sombre) et par des captures de la page.
+- **Style :**
+  - `.streamlit/config.toml` : thèmes clair et sombre personnalisés, police Inter, bordures fines.
+  - `assets/style.css` : en-tête, onglets, cartes KPI compactes, hiérarchie des titres.
+  - Mise en forme Plotly commune ; plus d'émojis ; gras réservé aux titres et aux chiffres ; formats français uniformes (1 décimale pour les %, milliers séparés, dates au format JJ/MM/AAAA).
+  - Explications déplacées dans les aides « ? » et des sections repliables ; liens directs vers une page (`?page=periodes`).
+- **Constat technique :** côté serveur, `st.context.theme` ne reflétait pas toujours le thème réellement affiché, ce qui donnait des légendes illisibles. Les couleurs de texte et de grille des graphiques sont donc confiées au thème Streamlit (côté navigateur), et le reste de la mise en forme est fixé par l'application.
+- **Vérification :** 215 exécutions automatiques (5 dossiers × périodes × 7 pages, chaque stratégie et chaque signal), 0 erreur. Captures des 7 pages relues en thème clair et sombre. Les 11 tests du projet passent. La logique de calcul n'a pas été modifiée.

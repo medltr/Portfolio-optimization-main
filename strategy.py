@@ -89,3 +89,66 @@ def build_universe_by_month(df_roles):
         stables = select_top_fraction(m, "Stables de qualité", "QualityScore")
         universes[d] = {"winners": winners, "stables": stables}
     return universes
+
+
+# ---------------------------------------------------------------------------
+# Signaux de classement (sans apprentissage) et règles de répartition entre rôles
+# ---------------------------------------------------------------------------
+FACTOR_SIGNALS = ["momentum", "reversal_1m", "low_vol", "low_beta", "quality", "mom_lowvol"]
+LSTM_SIGNALS = ["lstm_raw", "lstm_relative"]
+ALL_SIGNALS = LSTM_SIGNALS + FACTOR_SIGNALS
+GROUP_RULES = ["50_50", "none", "proportional", "30_70"]
+
+
+def low_volatility(prices_daily, index, window=252, min_obs=200):
+    """-(écart-type des log-rendements journaliers sur les `window` dernières séances <= date du signal)."""
+    lr = np.log(prices_daily.where(prices_daily > 0)).diff()
+    vol = lr.rolling(window, min_periods=min_obs).std()
+    out = []
+    for d, t in index:
+        pos = vol.index.searchsorted(d, side="right") - 1
+        out.append(-vol.iloc[pos][t] if pos >= 0 and t in vol.columns else np.nan)
+    return pd.Series(out, index=index, name="low_vol")
+
+
+def factor_signals(df_roles, prices_daily, index):
+    """Signaux calculés uniquement avec des données connues à la date du signal.
+
+    Le sens de chaque signal est fixé à l'avance (une valeur élevée = action préférée) :
+    momentum 12-1, retournement 1 mois (-return_1m), faible volatilité, faible bêta marché
+    (-bêta Mkt-RF), qualité (+bêta RMW), moyenne des rangs momentum + faible volatilité.
+    """
+    roles = df_roles.reindex(index)
+    s = pd.DataFrame(index=index)
+    s["momentum"] = (1 + roles["return_12m"]) ** 12 / (1 + roles["return_1m"]) - 1
+    s["reversal_1m"] = -roles["return_1m"]
+    s["low_vol"] = low_volatility(prices_daily, index)
+    s["low_beta"] = -roles["Mkt-RF"]
+    s["quality"] = roles["RMW"]
+    s["mom_lowvol"] = s[["momentum", "low_vol"]].groupby(level="Date").rank(pct=True).mean(axis=1)
+    return s
+
+
+def group_totals(n_winners, n_stables, rule):
+    """Part fixe de chaque groupe pour l'équipondéré et l'inclinaison (None = pas de groupes)."""
+    n = n_winners + n_stables
+    if rule == "50_50":
+        return 0.5, 0.5
+    if rule == "proportional":
+        return n_winners / n, n_stables / n
+    if rule == "30_70":
+        tw = min(max(n_winners / n, 0.3), 0.7)
+        return tw, 1 - tw
+    if rule == "none":
+        return None
+    raise ValueError(f"Règle de répartition inconnue : {rule}")
+
+
+def group_bounds(n_winners, n_stables, rule):
+    """Bornes (min, max) de la part des Gagnants et des Stables pour les optimiseurs (None = libre)."""
+    if rule == "30_70":
+        return (0.3, 0.7), (0.3, 0.7)
+    totals = group_totals(n_winners, n_stables, rule)
+    if totals is None:
+        return None
+    return (totals[0], totals[0]), (totals[1], totals[1])

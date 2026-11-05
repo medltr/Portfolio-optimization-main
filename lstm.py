@@ -61,11 +61,11 @@ def split_dataset(ds):
     return train, val, test, info
 
 
-def build_lstm(n_features):
+def build_lstm(n_features, seed=None):
     import tensorflow as tf
     from tensorflow.keras import layers, models
     tf.keras.backend.clear_session()
-    tf.keras.utils.set_random_seed(RANDOM_SEED)
+    tf.keras.utils.set_random_seed(RANDOM_SEED if seed is None else seed)
     model = models.Sequential([
         layers.Input(shape=(SEQ_LEN, n_features)),
         layers.Masking(mask_value=0.0),
@@ -80,7 +80,7 @@ def build_lstm(n_features):
     return model
 
 
-def train_lstm(train, val):
+def train_lstm(train, val, seed=None, verbose=1):
     from tensorflow.keras import callbacks
     X_train = np.stack(train["X"].values)
     y_train = train["y"].values.astype(np.float32)
@@ -91,10 +91,10 @@ def train_lstm(train, val):
     scaler.fit(X_train.reshape(-1, n_features))
     X_train_s = scaler.transform(X_train.reshape(-1, n_features)).reshape(X_train.shape)
     X_val_s = scaler.transform(X_val.reshape(-1, n_features)).reshape(X_val.shape)
-    model = build_lstm(n_features)
+    model = build_lstm(n_features, seed=seed)
     cb = [callbacks.EarlyStopping(monitor="val_loss", patience=5, restore_best_weights=True)]
     hist = model.fit(X_train_s, y_train, validation_data=(X_val_s, y_val),
-                     epochs=LSTM_EPOCHS, batch_size=BATCH_SIZE, verbose=1, callbacks=cb)
+                     epochs=LSTM_EPOCHS, batch_size=BATCH_SIZE, verbose=verbose, callbacks=cb)
     history = pd.DataFrame(hist.history)
     history.index = pd.RangeIndex(1, len(history)+1, name="epoch")
     return model, scaler, history
@@ -121,3 +121,83 @@ def evaluate_test(pred_df):
             "directional_accuracy": float((np.sign(evaluated["pred_return_next"])
                                             == np.sign(evaluated["observed"])).mean()),
             "n_evaluated": len(evaluated), "n_unobserved": len(pred_df)-len(evaluated)}
+
+
+# ---------------------------------------------------------------------------
+# Walk-forward : déterminisme, cible relative, calendrier sans fuite, ensemble de graines
+# ---------------------------------------------------------------------------
+def enable_determinism():
+    """Rend l'entraînement TensorFlow reproductible. Toute erreur est remontée, jamais ignorée."""
+    import tensorflow as tf
+    try:
+        tf.config.experimental.enable_op_determinism()
+    except Exception as exc:
+        raise RuntimeError(f"Impossible d'activer le déterminisme TensorFlow : {exc!r}") from exc
+    return tf.__version__
+
+
+def add_relative_target(ds):
+    """y_rel = rendement - moyenne des rendements des actions du même mois (cibles connues à la même date)."""
+    ds = ds.copy()
+    if ds.groupby("Date")["exit_date"].nunique().max() != 1:
+        raise ValueError("Dates de sortie différentes dans un même mois : cible relative ambiguë.")
+    ds["y_rel"] = ds["y"] - ds.groupby("Date")["y"].transform("mean")
+    return ds
+
+
+def walk_forward_blocks(ds, first_test, block_months, cutoff):
+    """Mois de test consécutifs (cibles observables avant `cutoff`), découpés en blocs de réentraînement."""
+    dates = pd.DatetimeIndex(sorted(pd.to_datetime(ds["Date"]).unique()))
+    first_test = pd.Timestamp(first_test)
+    if first_test not in dates:
+        raise ValueError(f"{first_test.date()} n'est pas une date de signal du dataset.")
+    last_exit = ds.groupby("Date")["exit_date"].max().reindex(dates)
+    test_dates = dates[(dates >= first_test) & (last_exit.to_numpy() <= pd.Timestamp(cutoff))]
+    if test_dates.empty:
+        raise ValueError("Aucun mois de test observable.")
+    if not test_dates.to_period("M").equals(pd.period_range(test_dates[0], test_dates[-1], freq="M")):
+        raise ValueError("Les mois de test ne sont pas consécutifs.")
+    return [test_dates[i:i + block_months] for i in range(0, len(test_dates), block_months)]
+
+
+def split_at(ds, T, val_frac=0.20, min_val_months=4, min_train_months=6):
+    """Entraînement / validation avec les seules cibles entièrement connues à la date T.
+
+    Validation = derniers mois disponibles ; les exemples d'entraînement dont la cible
+    chevauche le début de la validation sont retirés (purge), comme dans split_dataset.
+    """
+    T = pd.Timestamp(T)
+    avail = ds[(ds["exit_date"] <= T) & np.isfinite(ds["y"])].copy()
+    months = pd.DatetimeIndex(sorted(avail["Date"].unique()))
+    n_val = max(min_val_months, int(round(val_frac * len(months))))
+    if len(months) - n_val < min_train_months:
+        raise ValueError(f"Trop peu de mois d'entraînement avant {T.date()}.")
+    val_months, train_months = months[-n_val:], months[:-n_val]
+    train = avail[avail["Date"].isin(train_months) & (avail["exit_date"] <= val_months[0])].copy()
+    val = avail[avail["Date"].isin(val_months)].copy()
+    if train.empty or val.empty:
+        raise ValueError(f"Entraînement ou validation vide à {T.date()}.")
+    if train["exit_date"].max() > val["Date"].min() or val["exit_date"].max() > T:
+        raise ValueError(f"Fuite d'information détectée dans le découpage à {T.date()}.")
+    info = {"T": str(T.date()), "n_train": len(train), "n_val": len(val),
+            "train_months": [str(train["Date"].min().date()), str(train["Date"].max().date())],
+            "val_months": [str(val_months[0].date()), str(val_months[-1].date())],
+            "last_train_target": str(train["exit_date"].max().date()),
+            "last_val_target": str(val["exit_date"].max().date())}
+    return train, val, info
+
+
+def predict_ensemble(train, val, test, seeds, target="y", verbose=0):
+    """Entraîne un LSTM par graine sur `target` et renvoie les prévisions de chaque graine et leur moyenne."""
+    tr, va = train.assign(y=train[target]), val.assign(y=val[target])
+    preds, logs = {}, []
+    for seed in seeds:
+        model, scaler, history = train_lstm(tr, va, seed=seed, verbose=verbose)
+        p = predict_test(model, scaler, test)["pred_return_next"]
+        if preds and not p.index.equals(next(iter(preds.values())).index):
+            raise ValueError("Index de prévisions différent entre graines.")
+        preds[seed] = p
+        logs.append(history.reset_index().assign(seed=seed))
+    out = pd.DataFrame({f"seed{s}": p for s, p in preds.items()})
+    out["ensemble"] = out.mean(axis=1)
+    return out, pd.concat(logs, ignore_index=True)
